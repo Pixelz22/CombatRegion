@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>CSC 561 - Prog 5</title>
+
+        <link rel="stylesheet" type="text/css" href="src/game.css">
+        <script type="text/javascript" src="src/core/gl-matrix-min.js"></script>
+
+        <!-- All shaders used -->
+        <script type="text/javascript" src="src/core/shader.js"></script>
+        <script type="text/javascript" src="src/shaders/blinnPhong.js"></script>
+        <script type="text/javascript" src="src/shaders/textured.js"></script>
+        <script type="text/javascript" src="src/shaders/texturedTransparent.js"></script>
+        <script type="text/javascript" src="src/shaders/fancy.js"></script>
+        <script type="text/javascript" src="src/shaders/skybox.js"></script>
+        <script type="text/javascript" src="src/shaders/wireframeShader.js"></script>
+        <script type="text/javascript" src="src/shaders/billboard.js"></script>
+        <script type="text/javascript" src="src/shaders/uiShader.js"></script>
+        <script type="text/javascript" src="src/shaders/uvTest.js"></script>
+        <script type="text/javascript" src="src/shaders/uiMinimap.js"></script>
+
+        <script type="text/javascript" src="src/core/transform.js"></script>
+        <script type="text/javascript" src="src/core/model.js"></script>
+        <script type="text/javascript" src="src/core/camera.js"></script>
+        <script type="text/javascript" src="src/core/collision.js"></script>
+        <script type="text/javascript" src="src/core/audio.js"></script>
+        <script type="text/javascript" src="src/core/animation.js"></script>
+        <script type="text/javascript" src="src/core/scene.js"></script>
+
+        <script type="text/javascript" src="src/core/common.js"></script>
+
+        <script type="text/javascript" src="src/core/rasterize.js"></script>
+
+        <!-- noise library -->
+        <script type="text/javascript" src="src/perlin.js"></script>
+
+        <script type="text/javascript" src="src/main.js"></script>
+        <script type="text/javascript" src="src/input.js"></script>
+        <script type="text/javascript" src="src/level.js"></script>
+        <script type="text/javascript" src="src/logic.js"></script>
+    </head>
+
+    <body onload="setup();">
+        <h1 class="text-green">COMBAT REGION</h1>
+        <div class="width-full flex flex-col flex-auto-margin place-items-center">
+            <div class="anchor">
+                <div class="width-full height-full flex flex-col place-items-center justify-content-center">
+                    <div id="loadingScreen">
+                        <div class="text-default text-center text-medium">Loading assets...</div>
+                        <div id="loadingBarOuter">
+                            <div id="loadingBarInner"></div>
+                        </div>
+                    </div>
+                    <button id="startButton" onclick="runGame();" class="fancy-button" hidden>START GAME</button>
+                </div>
+
+
+                <div id="gameContainer" hidden>
+                    <canvas id="myWebGLCanvas" width="512" height="512"></canvas>
+
+                    <div id="notifContainer">
+                        <div id="freecamNotif" class="notif" hidden>Freecam Enabled</div>
+                        <div id="wireframeNotif" class="notif" hidden>Wireframes Enabled</div>
+                    </div>
+
+                    <div id="scoreContainer">
+                        <div class="text-bright text-bold flex justify-content-between">
+                            <div class="text-right">
+                                HIGH SCORE:<br/>
+                                SCORE:
+                            </div>
+                            <div class="text-right">
+                                <span id="highScore">0000</span><br/>
+                                <span id="score">0000</span>
+                            </div>
+                        </div>
+
+                        <div id="lives" class="width-full flex justify-content-end">
+                            <img id="life1" src="https://pixelz22.github.io/randomly-hosted-resources/csc561/prog5/orginal_assets/life_icon.png">
+                            <img id="life2" src="https://pixelz22.github.io/randomly-hosted-resources/csc561/prog5/orginal_assets/life_icon.png">
+                            <img id="life3" src="https://pixelz22.github.io/randomly-hosted-resources/csc561/prog5/orginal_assets/life_icon.png">
+                            <img id="life4" src="https://pixelz22.github.io/randomly-hosted-resources/csc561/prog5/orginal_assets/life_icon.png">
+                        </div>
+                    </div>
+
+                    <div id="respawnText" class="width-full height-full" hidden>
+                        <div class="width-full height-full flex flex-col place-items-center justify-content-center">
+                            <div class="fade-container" style="width: 15rem; height: 10rem;">
+                                <div id="respawnCountdown">
+                                    <div class="text-bright text-center text-medium text-bold">Respawning in</div>
+                                    <div id="respawnCountdownNumber" class="text-bright text-center text-medium text-bold">3</div>
+                                </div>
+                                <div id="respawnFinal" class="text-bright text-center text-medium text-bold" hidden>Respawning...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="gameOverContainer" class="width-full height-full" hidden>
+                        <div class="width-full height-full flex flex-col place-items-center justify-content-center">
+                            <div style="width: 15rem; height: 5em;">
+                                <div class="text-bright text-large text-center">GAME OVER</div>
+                                <div class="width-full flex flex-col justify-content-center">
+                                    <button id="replayButton" onclick="resetGame();" class="fancy-button" hidden>PLAY AGAIN?</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="instructions" style="width: 38rem">
+                <h3>Controls</h3>
+                <div class="flex justify-content-around">
+                    <!-- Up/Down controls -->
+                    <div class="width-fit flex flex-col place-items-start">
+                        <span class="text-default" style="font-weight: bold;">⇧ Forward</span>
+                        <span class="text-default" style="font-weight: bold;">⇩ Backward</span>
+                    </div>
+
+                    <!-- Left/Right controls -->
+                    <div class="width-fit flex">
+                        <div class="width-fit flex flex-col place-items-center">
+                            <span class="text-default" style="font-weight: bold;">⇦</span>
+                            <span class="text-default" style="font-weight: bold;">Turn Left</span>
+                        </div>
+                        <div class="width-fit flex flex-col place-items-center" style="margin-left: 1rem;">
+                            <span class="text-default" style="font-weight: bold;">⇨</span>
+                            <span class="text-default" style="font-weight: bold;">Turn Right</span>
+                        </div>
+                    </div>
+
+
+                    <!-- Shooting Controls -->
+                    <div class="width-fit flex flex-col place-items-center">
+                        <div class="spacebar"></div>
+                        <span class="text-default text-center" style="font-weight: bold;">Fire</span>
+                    </div>
+
+
+                    <!-- Shooting Controls -->
+                    <div class="width-fit flex flex-col place-items-center">
+                        <div class="text-default text-center text-bold">!</div>
+                        <span class="text-default text-center text-bold">Toggle Graphics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
