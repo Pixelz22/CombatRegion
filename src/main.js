@@ -200,6 +200,7 @@ function setupShaders() {
     // SP_TEXTURED_TRANSPARENT.init();
     SP_SKYBOX.init();
     SP_FANCY.init();
+    SP_NINE.init();
     SP_WIREFRAME.init();
     SP_BILLBOARD.init();
     SP_UI_SPRITE.init();
@@ -303,6 +304,10 @@ function resetGame() {
 
     // Enemy setup
     // Clear any existing enemies
+    MAX_ENEMIES = MAX_ENEMIES_EASY;
+    ENEMY_SPAWN_COOLDOWN = ENEMY_SPAWN_COOLDOWN_EASY;
+    ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED_EASY;
+    ENEMY_ROTATE_SPEED = ENEMY_ROTATE_SPEED_EASY;
     for (let enemy of ENEMIES) {
         enemy.audioSources.bullet_shoot.unregister();
         enemy.audioSources.radar_bleep.unregister();
